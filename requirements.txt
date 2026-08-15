@@ -1,0 +1,2 @@
+numpy
+scikit-learn   # used ONLY to load the Wine dataset (sklearn.datasets.load_wine), never for the tree model itself
