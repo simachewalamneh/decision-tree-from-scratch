@@ -551,3 +551,15 @@ a well-established diabetes risk factor, giving the tree's structure a
 sensible real-world interpretation beyond just its accuracy numbers.
 Final test-set evaluation: **MSE=3192, RMSE=56.5, MAE=45.7, R²=0.402**.
 
+# References
+
+**Serrano, Luis.** *Grokking Machine Learning.* Manning Publications, 2021.
+Chapter 9 — "Splitting data by asking questions: Decision trees."
+
+Book link: https://books.google.com.et/books?id=jJiDzQEACAAJ&printsec=copyright&redir_esc=y#v=onepage&q&f=false
+
+This repository's decision tree concepts, formulas, and worked examples
+(splitting criteria, stopping criteria, the regression toy example) are
+based on this chapter. The Python implementation and the real-world
+dataset demos are original.
+
