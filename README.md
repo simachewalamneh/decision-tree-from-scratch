@@ -44,6 +44,69 @@ python toy_regression_example.py   # regression walkthrough (matches the book ex
 python diabetes_demo.py            # real regression, with stopping-criteria experiments
 ```
 
+## How to run (full steps)
+
+### 1. Create a virtual environment
+
+```bash
+python3 -m venv venv
+```
+
+This creates an isolated Python environment in a `venv/` folder so the
+project's packages don't clash with anything else on your system.
+
+### 2. Activate it
+
+Linux/macOS:
+```bash
+source venv/bin/activate
+```
+
+Windows (PowerShell):
+```powershell
+venv\Scripts\Activate.ps1
+```
+
+Windows (Command Prompt):
+```cmd
+venv\Scripts\activate.bat
+```
+
+Your prompt should now show `(venv)` at the start of the line.
+
+### 3. Install requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+Installs `numpy` (used by both `decision_tree.py` and `regression_tree.py`)
+and `scikit-learn` (used only to load the Wine and Diabetes datasets —
+never for the tree models themselves, which are 100% from scratch).
+
+### 4. Run the classification scripts
+
+```bash
+cd classification
+python toy_example.py    # concept walkthrough — reproduces every number in section 2-7 above
+python wine_demo.py      # real multiclass dataset (UCI Wine), criteria + stopping-criteria comparisons
+```
+
+### 5. Run the regression scripts
+
+```bash
+cd ../regression
+python toy_regression_example.py   # regression walkthrough — reproduces the book's own Table 9.6/9.7
+python diabetes_demo.py            # real-world dataset (Diabetes), stopping-criteria experiments
+```
+
+### 6. When you're done
+
+```bash
+deactivate
+```
+Exits the virtual environment back to your normal shell.
+
 ---
 
 ## 1. What a decision tree is
@@ -550,16 +613,3 @@ The final tree (`max_depth=3, min_samples_leaf=10`) splits first on
 a well-established diabetes risk factor, giving the tree's structure a
 sensible real-world interpretation beyond just its accuracy numbers.
 Final test-set evaluation: **MSE=3192, RMSE=56.5, MAE=45.7, R²=0.402**.
-
-# References
-
-**Serrano, Luis.** *Grokking Machine Learning.* Manning Publications, 2021.
-Chapter 9 — "Splitting data by asking questions: Decision trees."
-
-Book link: https://books.google.com.et/books?id=jJiDzQEACAAJ&printsec=copyright&redir_esc=y#v=onepage&q&f=false
-
-This repository's decision tree concepts, formulas, and worked examples
-(splitting criteria, stopping criteria, the regression toy example) are
-based on this chapter. The Python implementation and the real-world
-dataset demos are original.
-
