@@ -1,0 +1,73 @@
+Dataset: Wine (UCI) — 178 samples, 13 features, 3 classes: [np.str_('class_0'), np.str_('class_1'), np.str_('class_2')]
+
+Train size: 143, Test size: 35
+
+======================================================================
+Comparing splitting criteria (max_depth=4, min_samples_leaf=2)
+======================================================================
+criterion=accuracy  depth=4  leaves=9  train_acc=0.965  test_acc=0.971
+criterion=gini      depth=4  leaves=7  train_acc=0.986  test_acc=0.914
+criterion=entropy   depth=4  leaves=7  train_acc=0.993  test_acc=0.914
+
+======================================================================
+Effect of max_depth (stopping criterion) on train vs test accuracy
+======================================================================
+max_depth=1                  actual_depth= 1  leaves=  2  train_acc=0.643  test_acc=0.657
+max_depth=2                  actual_depth= 2  leaves=  4  train_acc=0.937  test_acc=0.857
+max_depth=3                  actual_depth= 3  leaves=  6  train_acc=0.993  test_acc=0.943
+max_depth=4                  actual_depth= 4  leaves=  7  train_acc=1.000  test_acc=0.943
+max_depth=6                  actual_depth= 4  leaves=  7  train_acc=1.000  test_acc=0.943
+max_depth=None (unbounded)   actual_depth= 4  leaves=  7  train_acc=1.000  test_acc=0.943
+
+======================================================================
+Effect of min_samples_leaf (stopping criterion) at max_depth=None
+======================================================================
+min_samples_leaf=  1  actual_depth= 4  leaves=  7  train_acc=1.000  test_acc=0.943
+min_samples_leaf=  2  actual_depth= 4  leaves=  7  train_acc=0.986  test_acc=0.914
+min_samples_leaf=  5  actual_depth= 3  leaves=  5  train_acc=0.972  test_acc=0.943
+min_samples_leaf= 10  actual_depth= 3  leaves=  5  train_acc=0.965  test_acc=0.943
+
+======================================================================
+Final tree (criterion=gini, max_depth=3, min_samples_leaf=3)
+======================================================================
+[color_intensity <= 3.820?]  (n=143, impurity=0.659)
+├─ Yes:
+│   [proline <= 961.000?]  (n=52, impurity=0.109)
+│   ├─ Yes:
+│   │   [ash <= 2.760?]  (n=49, impurity=0.040)
+│   │   ├─ Yes:
+│   │   │   Leaf: predict=1  (n=46, impurity=0.000)
+│   │   └─ No:
+│   │       Leaf: predict=1  (n=3, impurity=0.444)
+│   └─ No:
+│       Leaf: predict=0  (n=3, impurity=0.444)
+└─ No:
+    [flavanoids <= 1.400?]  (n=91, impurity=0.576)
+    ├─ Yes:
+    │   Leaf: predict=2  (n=40, impurity=0.000)
+    └─ No:
+        [proline <= 724.500?]  (n=51, impurity=0.265)
+        ├─ Yes:
+        │   Leaf: predict=1  (n=9, impurity=0.198)
+        └─ No:
+            Leaf: predict=0  (n=42, impurity=0.000)
+
+Final test accuracy: 0.943
+
+======================================================================
+Full evaluation on the test set (not just accuracy)
+======================================================================
+Accuracy: 0.943
+
+Confusion matrix (rows=true, columns=predicted):
+           class_0   class_1   class_2
+ class_0        12         1         0
+ class_1         0        14         0
+ class_2         0         1         7
+
+     Class   Precision    Recall        F1   Support
+   class_0       1.000     0.923     0.960        13
+   class_1       0.875     1.000     0.933        14
+   class_2       1.000     0.875     0.933         8
+
+Macro avg  precision=0.958  recall=0.933  f1=0.942

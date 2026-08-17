@@ -1,0 +1,64 @@
+Dataset: Diabetes (real-world) -- 442 patients, 10 features
+Target: disease progression one year after baseline (range 25-346, mean 152.1)
+
+Train size: 354, Test size: 88
+
+Baseline (always predict the mean) test MSE: 5413.5
+
+======================================================================
+Effect of max_depth (stopping criterion) on train vs test performance
+======================================================================
+max_depth=1                  actual_depth= 1  leaves=  2  train_MSE= 4216.7  test_MSE= 4651.4  test_R2=0.129
+max_depth=2                  actual_depth= 2  leaves=  4  train_MSE= 3349.3  test_MSE= 3908.9  test_R2=0.268
+max_depth=3                  actual_depth= 3  leaves=  8  train_MSE= 2926.9  test_MSE= 3697.6  test_R2=0.308
+max_depth=4                  actual_depth= 4  leaves= 15  train_MSE= 2537.1  test_MSE= 3487.1  test_R2=0.347
+max_depth=6                  actual_depth= 6  leaves= 42  train_MSE= 1652.8  test_MSE= 3813.9  test_R2=0.286
+max_depth=None (unbounded)   actual_depth=11  leaves= 99  train_MSE=  737.3  test_MSE= 4102.2  test_R2=0.232
+
+======================================================================
+Effect of min_samples_leaf (stopping criterion) at max_depth=4
+======================================================================
+min_samples_leaf=  1  leaves= 16  train_MSE= 2517.1  test_MSE= 3749.3  test_R2=0.298
+min_samples_leaf=  3  leaves= 15  train_MSE= 2537.1  test_MSE= 3487.1  test_R2=0.347
+min_samples_leaf=  5  leaves= 15  train_MSE= 2575.5  test_MSE= 3011.0  test_R2=0.436
+min_samples_leaf= 10  leaves= 14  train_MSE= 2626.3  test_MSE= 3165.4  test_R2=0.407
+min_samples_leaf= 20  leaves= 10  train_MSE= 2818.0  test_MSE= 3179.4  test_R2=0.405
+
+======================================================================
+Final tree (max_depth=3, min_samples_leaf=10)
+======================================================================
+[bmi <= 0.005?]  (n=354, mse=6061.813)
+├─ Yes:
+│   [s5 <= 0.006?]  (n=209, mse=3612.730)
+│   ├─ Yes:
+│   │   [s5 <= -0.043?]  (n=152, mse=2378.339)
+│   │   ├─ Yes:
+│   │   │   Leaf: predict=80.878  (n=49, mse=1425.414)
+│   │   └─ No:
+│   │       Leaf: predict=109.922  (n=103, mse=2559.722)
+│   └─ No:
+│       [bmi <= -0.022?]  (n=57, mse=3915.520)
+│       ├─ Yes:
+│       │   Leaf: predict=137.095  (n=21, mse=2591.896)
+│       └─ No:
+│           Leaf: predict=180.750  (n=36, mse=3985.521)
+└─ No:
+    [bmi <= 0.073?]  (n=145, mse=5087.135)
+    ├─ Yes:
+    │   [s6 <= 0.034?]  (n=119, mse=4519.469)
+    │   ├─ Yes:
+    │   │   Leaf: predict=175.895  (n=86, mse=3959.815)
+    │   └─ No:
+    │       Leaf: predict=230.515  (n=33, mse=3821.947)
+    └─ No:
+        [s2 <= 0.018?]  (n=26, mse=2428.302)
+        ├─ Yes:
+        │   Leaf: predict=292.188  (n=16, mse=987.027)
+        └─ No:
+            Leaf: predict=237.300  (n=10, mse=2880.410)
+
+Full evaluation on the test set:
+MSE:  3192.261
+RMSE: 56.500
+MAE:  45.749
+R^2:  0.402

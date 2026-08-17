@@ -1,0 +1,58 @@
+============================================================
+Step 1: impurity of the whole dataset
+============================================================
+Gini:     0.459
+Entropy:  0.940
+Accuracy (majority baseline): 0.643
+
+============================================================
+Step 2: weighted Gini of a few candidate splits
+============================================================
+Outlook == Sunny?        weighted Gini = 0.394
+Outlook == Overcast?     weighted Gini = 0.357
+Windy == True?           weighted Gini = 0.429
+
+============================================================
+Step 3: full tree (criterion=gini, max_depth=3)
+============================================================
+[Outlook == 'Overcast'?]  (n=14, impurity=0.459)
+├─ Yes:
+│   Leaf: predict=Yes  (n=4, impurity=0.000)
+└─ No:
+    [Temperature <= 77.500?]  (n=10, impurity=0.500)
+    ├─ Yes:
+    │   [Temperature <= 66.500?]  (n=8, impurity=0.469)
+    │   ├─ Yes:
+    │   │   Leaf: predict=No  (n=1, impurity=0.000)
+    │   └─ No:
+    │       Leaf: predict=Yes  (n=7, impurity=0.408)
+    └─ No:
+        Leaf: predict=No  (n=2, impurity=0.000)
+
+Training accuracy: 0.857
+
+============================================================
+Step 4: predict a new sample
+============================================================
+Sample ('Rainy', 66, False) -> predicted PlayOutside = No
+
+============================================================
+Step 5: testing accuracy (leave-one-out cross-validation)
+============================================================
+  held out row  0: true=No  predicted=No  ✓
+  held out row  1: true=No  predicted=No  ✓
+  held out row  2: true=Yes predicted=Yes ✓
+  held out row  3: true=Yes predicted=No  ✗
+  held out row  4: true=Yes predicted=No  ✗
+  held out row  5: true=No  predicted=No  ✓
+  held out row  6: true=Yes predicted=Yes ✓
+  held out row  7: true=No  predicted=Yes ✗
+  held out row  8: true=Yes predicted=No  ✗
+  held out row  9: true=Yes predicted=No  ✗
+  held out row 10: true=Yes predicted=No  ✗
+  held out row 11: true=Yes predicted=Yes ✓
+  held out row 12: true=Yes predicted=Yes ✓
+  held out row 13: true=No  predicted=Yes ✗
+
+Leave-one-out testing accuracy: 0.500 (7/14)
+(Training accuracy on the full set, for comparison, was 0.857 -- higher, as expected, since that tree saw every point during training.)

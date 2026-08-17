@@ -1,0 +1,60 @@
+============================================================
+Step 1: MSE of the whole dataset (predicting the average for everyone)
+============================================================
+Average label: 4.000
+MSE: 5.250
+
+============================================================
+Step 2: weighted MSE for every candidate age cutoff (Table 9.7)
+============================================================
+  Cutoff           Left labels        Right labels       MSE
+       0                    [][7, 5, 7, 1, 2, 1, 5, 4]     5.250
+      15                   [7][5, 7, 1, 2, 1, 5, 4]     3.964
+      25                [7, 5]  [7, 1, 2, 1, 5, 4]     3.917
+      35             [7, 5, 7]     [1, 2, 1, 5, 4]     1.983
+      45          [7, 5, 7, 1]        [2, 1, 5, 4]     4.250
+      55       [7, 5, 7, 1, 2]           [1, 5, 4]     4.983
+      65    [7, 5, 7, 1, 2, 1]              [5, 4]     5.167
+      75 [7, 5, 7, 1, 2, 1, 5]                 [4]     5.250
+     100[7, 5, 7, 1, 2, 1, 5, 4]                  []     5.250
+
+(Book reports the minimum at cutoff=35, MSE=1.983 -- matches above.)
+
+============================================================
+Step 3: full regression tree (max_depth=2)
+============================================================
+[Age <= 35.000?]  (n=8, mse=5.250)
+├─ Yes:
+│   [Age <= 15.000?]  (n=3, mse=0.889)
+│   ├─ Yes:
+│   │   Leaf: predict=7.000  (n=1, mse=0.000)
+│   └─ No:
+│       Leaf: predict=6.000  (n=2, mse=1.000)
+└─ No:
+    [Age <= 65.000?]  (n=5, mse=2.640)
+    ├─ Yes:
+    │   Leaf: predict=1.333  (n=3, mse=0.222)
+    └─ No:
+        Leaf: predict=4.500  (n=2, mse=0.250)
+
+============================================================
+Step 4: predict a new user's engagement
+============================================================
+Age  18 -> predicted engagement: 6.000 days/week
+Age  42 -> predicted engagement: 1.333 days/week
+Age  68 -> predicted engagement: 4.500 days/week
+
+============================================================
+Step 5: testing accuracy (leave-one-out cross-validation)
+============================================================
+  held out age= 10: true=7.0  predicted=5.000  squared_error=4.000
+  held out age= 20: true=5.0  predicted=7.000  squared_error=4.000
+  held out age= 30: true=7.0  predicted=5.000  squared_error=4.000
+  held out age= 40: true=1.0  predicted=6.000  squared_error=25.000
+  held out age= 50: true=2.0  predicted=1.000  squared_error=1.000
+  held out age= 60: true=1.0  predicted=1.500  squared_error=0.250
+  held out age= 70: true=5.0  predicted=1.333  squared_error=13.444
+  held out age= 80: true=4.0  predicted=5.000  squared_error=1.000
+
+Leave-one-out testing MSE: 6.587
+(Training MSE on the full tree, for comparison, was 0.396 -- lower, since that tree saw every point.)
