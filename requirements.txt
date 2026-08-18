@@ -1,2 +1,5 @@
 numpy
-scikit-learn   # used ONLY to load the Wine dataset (sklearn.datasets.load_wine), never for the tree model itself
+scikit-learn   # used ONLY to load the Wine/Diabetes datasets, never for the tree models themselves
+seaborn        # used ONLY to load the Titanic/Penguins datasets, never for modeling
+streamlit      # GUI (app.py) -- interactive dataset/hyperparameter selector
+matplotlib     # GUI (app.py) -- renders the visual tree diagram (tree_plot.py)
