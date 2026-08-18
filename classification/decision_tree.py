@@ -1,33 +1,10 @@
-"""
-Decision Tree Classifier — implemented from scratch, following the
-algorithm in Chapter 9 ("Splitting data by asking questions: Decision
-trees") of Luis Serrano's "Grokking Machine Learning".
-
-No scikit-learn (or any other library) is used for the tree logic itself.
-Only numpy is used for basic array math (not for any tree/ML algorithm).
-
-Supports:
-  - Multiclass classification (any number of labels, not just binary)
-  - Numerical features  -> split by "is feature <= cutoff?" (all midpoints tried)
-  - Categorical features -> split by "is feature == category?" (one-hot style,
-                             as described in "Beyond questions like yes/no")
-  - Three splitting (impurity) criteria: "accuracy", "gini", "entropy"
-  - Four stopping criteria (all from the book, all configurable):
-        1. max_depth              -> stop growing past this depth
-        2. min_samples_split      -> don't split a node with fewer samples than this
-        3. min_samples_leaf       -> don't create a leaf with fewer samples than this
-        4. min_impurity_decrease  -> don't split if the improvement is too small
-"""
 
 from __future__ import annotations
 import numpy as np
 from collections import Counter
 
-
-# --------------------------------------------------------------------------- #
-# Impurity / quality metrics (Section "First step to build the model")
-# --------------------------------------------------------------------------- #
-
+ # Impurity / quality metrics (Section "First step to build the model")
+ 
 def gini_impurity(labels):
     """Gini = 1 - sum(p_i^2). 0 = pure set, closer to 1 = mixed set."""
     n = len(labels)
@@ -52,27 +29,15 @@ def entropy(labels):
 
 
 def accuracy_of_majority_prediction(labels):
-    """
-    If we predicted the majority label for every point in this set,
-    what fraction would we get right? Used as an alternative purity score
-    (Serrano's "accuracy" splitting criterion).
-    """
     n = len(labels)
     if n == 0:
         return 1.0
     most_common_count = Counter(labels).most_common(1)[0][1]
     return most_common_count / n
-
+#[(most_common_label, most_common_count)] = Counter(labels).most_common(1)
 
 def impurity(labels, criterion):
-    """
-    Unified "the lower, the purer" impurity score for a set of labels,
-    for all three criteria. For accuracy we use (1 - accuracy) so that,
-    exactly like gini/entropy, LOWER is always better — this lets the
-    rest of the algorithm treat all three criteria identically, matching
-    the book's remark that minimizing weighted impurity is equivalent to
-    maximizing Gini gain / information gain.
-    """
+ 
     if criterion == "gini":
         return gini_impurity(labels)
     elif criterion == "entropy":
@@ -84,8 +49,6 @@ def impurity(labels, criterion):
 
 
 def weighted_impurity(left_labels, right_labels, criterion):
-    """Weighted average impurity of a split, weighted by branch size
-    (Figure 9.14 — "the larger dataset should count for more")."""
     n_left, n_right = len(left_labels), len(right_labels)
     n_total = n_left + n_right
     if n_total == 0:
@@ -94,9 +57,7 @@ def weighted_impurity(left_labels, right_labels, criterion):
            (n_right / n_total) * impurity(right_labels, criterion)
 
 
-# --------------------------------------------------------------------------- #
 # Tree node
-# --------------------------------------------------------------------------- #
 
 class Node:
     """A node is either a leaf (prediction set) or a decision node
@@ -122,23 +83,10 @@ class Node:
             return f"feature[{self.feature_index}] == {self.category!r} ?"
 
 
-# --------------------------------------------------------------------------- #
+
 # Decision Tree Classifier
-# --------------------------------------------------------------------------- #
 
 class DecisionTreeClassifier:
-    """
-    Parameters mirror the book's four stopping conditions directly, plus
-    the choice of splitting criterion.
-
-    criterion : {"gini", "entropy", "accuracy"}
-    max_depth : int or None                 -> stopping condition 4
-    min_samples_split : int                 -> stopping condition 2
-    min_samples_leaf : int                  -> stopping condition 3
-    min_impurity_decrease : float           -> stopping condition 1
-    feature_types : list of "numerical"/"categorical", one per column,
-                    or None to auto-detect (numeric dtype -> numerical).
-    """
 
     def __init__(self, criterion="gini", max_depth=5, min_samples_split=2,
                  min_samples_leaf=1, min_impurity_decrease=0.0,
@@ -154,7 +102,7 @@ class DecisionTreeClassifier:
 
     # ---- fitting --------------------------------------------------------- #
 
-    def fit(self, X, y):
+    def fit(self, X, y):  # start a training
         X = np.asarray(X, dtype=object)
         y = np.asarray(y)
         self.n_features_ = X.shape[1]
@@ -178,7 +126,7 @@ class DecisionTreeClassifier:
         self.root_ = self._build_node(X, y, depth=0)
         return self
 
-    def _build_node(self, X, y, depth):
+    def _build_node(self, X, y, depth): #reccursively construct a tree
         node = Node(depth)
         node.n_samples = len(y)
         node.prediction = Counter(y).most_common(1)[0][0]
@@ -195,7 +143,7 @@ class DecisionTreeClassifier:
         if len(y) < self.min_samples_split:
             return node
 
-        best = self._best_split(X, y)
+        best = self._best_split(X, y)  # Searches for the best feature/threshold
         if best is None:
             return node  # no split improved things enough / respected min_samples_leaf
 
@@ -217,16 +165,9 @@ class DecisionTreeClassifier:
         node.right = self._build_node(X[~left_mask], y[~left_mask], depth + 1)
         return node
 
-    def _best_split(self, X, y):
-        """
-        Try every feature (and, for numerical features, every candidate
-        cutoff between sorted unique values; for categorical features,
-        every category) and return the split with the lowest weighted
-        impurity, exactly as in "First step to build the model" and
-        "Beyond questions like yes/no".
-        """
+    def _best_split(self, X, y):  # Searches for the best feature/threshold
         parent_impurity = impurity(y, self.criterion)
-        best_gain = -np.inf
+        best_gain = -np.inf   # what it returns?
         best = None  # (feat_idx, feat_type, split_value, left_mask, gain)
 
         n_samples = len(y)
@@ -248,7 +189,7 @@ class DecisionTreeClassifier:
                     if n_left < self.min_samples_leaf or n_right < self.min_samples_leaf:
                         continue
                     w_imp = weighted_impurity(y[left_mask], y[~left_mask], self.criterion)
-                    gain = parent_impurity - w_imp
+                    gain = parent_impurity - w_imp # what this tells ?
                     if gain > best_gain:
                         best_gain = gain
                         best = (feat_idx, "numerical", cutoff, left_mask.copy(), gain)
@@ -283,21 +224,14 @@ class DecisionTreeClassifier:
         X = np.asarray(X, dtype=object)
         return np.array([self.predict_one(x) for x in X])
 
-    def score(self, X, y):
+    def score(self, X, y): #calculate accuracy 
         preds = self.predict(X)
         return float(np.mean(preds == np.asarray(y)))
 
     # ---- evaluation metrics ------------------------------------------------ #
 
     def evaluate(self, X, y, average="macro"):
-        """
-        Full classification evaluation: accuracy, confusion matrix, and
-        per-class precision/recall/F1, plus a macro or weighted average
-        across classes. Works for binary and multiclass.
-
-        average : "macro" (unweighted mean across classes) or
-                  "weighted" (weighted by each class's true sample count)
-        """
+       
         y_true = np.asarray(y)
         y_pred = self.predict(X)
         classes = sorted(set(y_true) | set(y_pred))
