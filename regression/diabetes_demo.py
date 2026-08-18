@@ -1,14 +1,3 @@
-"""
-Demo: train the from-scratch DecisionTreeRegressor on a real-world
-dataset (the UCI/sklearn Diabetes dataset -- 442 patients, 10 numerical
-features: age, sex, BMI, blood pressure, six blood serum measurements.
-Target: a quantitative measure of disease progression one year later).
-
-sklearn is used ONLY to load the dataset (sklearn.datasets.load_diabetes),
-never for the tree/model itself -- that is 100% implemented in
-regression_tree.py with no external ML library, same as the classifier.
-"""
-
 import numpy as np
 from regression_tree import DecisionTreeRegressor
 from sklearn.datasets import load_diabetes  # data loading only, not modeling
