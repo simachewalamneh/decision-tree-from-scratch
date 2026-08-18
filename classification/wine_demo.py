@@ -1,20 +1,8 @@
-"""
-Demo: train the from-scratch DecisionTreeClassifier on a real-world
-multiclass dataset (the UCI Wine dataset — 3 classes, 13 numerical
-chemical-analysis features, 178 samples).
-
-We use sklearn ONLY to load the dataset (sklearn.datasets.load_wine),
-never for the tree/model itself — that is 100% implemented in
-decision_tree.py with no external ML library.
-"""
-
 import numpy as np
 from decision_tree import DecisionTreeClassifier
 from sklearn.datasets import load_wine  # data loading only, not modeling
 
 RNG_SEED = 42
-
-
 def manual_train_test_split(X, y, test_ratio=0.2, seed=RNG_SEED):
     """A simple from-scratch stratified-ish shuffle split (no sklearn)."""
     rng = np.random.RandomState(seed)
@@ -23,7 +11,6 @@ def manual_train_test_split(X, y, test_ratio=0.2, seed=RNG_SEED):
     n_test = int(n * test_ratio)
     test_idx, train_idx = idx[:n_test], idx[n_test:]
     return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
-
 
 def main():
     data = load_wine()
@@ -82,23 +69,15 @@ def main():
         print(f"min_samples_leaf={msl:3d}  actual_depth={clf.depth():2d}  leaves={clf.n_leaves():3d}  "
               f"train_acc={train_acc:.3f}  test_acc={test_acc:.3f}")
 
-    # ---------------------------------------------------------------- #
     # 4. Print the actual tree for the best-looking configuration
-    # ---------------------------------------------------------------- #
-    print("\n" + "=" * 70)
-    print("Final tree (criterion=gini, max_depth=3, min_samples_leaf=3)")
-    print("=" * 70)
-    final_clf = DecisionTreeClassifier(criterion="gini", max_depth=3,
+
+l_clf = DecisionTreeClassifier(criterion="gini", max_depth=3,
                                         min_samples_split=6, min_samples_leaf=3)
     final_clf.fit(X_train, y_train)
     final_clf.print_tree(feature_names=feature_names)
     print(f"\nFinal test accuracy: {final_clf.score(X_test, y_test):.3f}")
 
-    # ---------------------------------------------------------------- #
     # 5. Full evaluation: confusion matrix, precision, recall, F1
-    #    (accuracy alone hides which classes get confused with each
-    #    other -- see README section "Why not just accuracy?")
-    # ---------------------------------------------------------------- #
     print("\n" + "=" * 70)
     print("Full evaluation on the test set (not just accuracy)")
     print("=" * 70)
