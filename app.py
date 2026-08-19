@@ -1,18 +1,3 @@
-"""
-Interactive GUI for the from-scratch decision tree project.
-
-Run with:  streamlit run app.py
-
-Lets you pick a classification or regression dataset, tune the same
-stopping-criteria hyperparameters used throughout this repo, and see
-BOTH the text output (accuracy/MSE, evaluation metrics) and a real
-rendered tree diagram (not just the ASCII print_tree() version).
-
-Imports decision_tree.py / regression_tree.py from the classification/
-and regression/ folders unchanged -- this file adds a GUI on top, it
-does not modify the underlying algorithm at all.
-"""
-
 import sys
 import os
 import io
@@ -31,9 +16,7 @@ from tree_plot import plot_tree                             # noqa: E402
 st.set_page_config(page_title="Decision Trees From Scratch", layout="wide")
 
 
-# --------------------------------------------------------------------------- #
 # Dataset loaders (mirrors the *_demo.py / toy_*.py scripts in the repo)
-# --------------------------------------------------------------------------- #
 
 def load_toy_classification():
     data = [
@@ -108,7 +91,6 @@ REGRESSION_DATASETS = {
     "Diabetes (real, 10 features, continuous target)": load_diabetes_dataset,
 }
 
-
 def manual_train_test_split(X, y, test_ratio, seed=42):
     rng = np.random.RandomState(seed)
     n = len(y)
@@ -117,17 +99,13 @@ def manual_train_test_split(X, y, test_ratio, seed=42):
     test_idx, train_idx = idx[:n_test], idx[n_test:]
     return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
 
-
 def capture_stdout(fn, *args, **kwargs):
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         result = fn(*args, **kwargs)
     return buf.getvalue(), result
 
-
-# --------------------------------------------------------------------------- #
 # Sidebar controls
-# --------------------------------------------------------------------------- #
 
 st.sidebar.title("Decision Trees From Scratch")
 task = st.sidebar.radio("Task", ["Classification", "Regression"])
@@ -147,9 +125,7 @@ test_ratio = st.sidebar.slider("Test set fraction", min_value=0.1, max_value=0.4
 run = st.sidebar.button("Run", type="primary")
 
 
-# --------------------------------------------------------------------------- #
 # Main panel
-# --------------------------------------------------------------------------- #
 
 st.title(" Decision Tree From-Scratch")
 st.caption("Same decision_tree.py / regression_tree.py used throughout the repo — "
