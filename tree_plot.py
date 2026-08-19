@@ -1,12 +1,3 @@
-"""
-Renders a decision tree (from either decision_tree.py's Node or
-regression_tree.py's RegressionNode) as an actual visual diagram using
-matplotlib, instead of the ASCII-art print_tree() output.
-
-Works with both node types via duck-typing: both have is_leaf, prediction,
-feature_index, feature_type, threshold, category, left, right, n_samples,
-depth, and either impurity_value (classification) or mse_value (regression).
-"""
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -59,11 +50,7 @@ def _assign_positions(node, depth=0, x_counter=None, positions=None):
 
 
 def plot_tree(root, feature_names=None, title=None, figsize=None):
-    """
-    Draw the tree rooted at `root` and return a matplotlib Figure.
-    Internal (decision) nodes are drawn as light boxes with the split
-    question; leaves are drawn as colored boxes with the prediction.
-    """
+ 
     positions = {}
     _assign_positions(root, positions=positions)
     max_x = max(p[0] for p in positions.values()) or 1
@@ -85,7 +72,7 @@ def plot_tree(root, feature_names=None, title=None, figsize=None):
             label = f"{_prediction_label(node)}\nn={node.n_samples}\n{_impurity_label(node)}"
         else:
             facecolor = "#E7EEF7"
-            edgecolor = "#4472A8"
+            edgecolor = "#3F6D6D"
             label = f"{_question_label(node, feature_names)}\nn={node.n_samples}\n{_impurity_label(node)}"
 
         box = mpatches.FancyBboxPatch(
@@ -100,7 +87,7 @@ def plot_tree(root, feature_names=None, title=None, figsize=None):
             for child, branch_label in [(node.left, "Yes"), (node.right, "No")]:
                 cx, cy = positions[id(child)]
                 ax.plot([x, cx], [y - box_h / 2, cy + box_h / 2],
-                        color="#888888", linewidth=1.0, zorder=1)
+                        color="#E0D3D3", linewidth=1.0, zorder=1)
                 mx, my = (x + cx) / 2, (y + cy) / 2
                 ax.text(mx, my, branch_label, fontsize=7, color="#555555",
                          ha="center", va="center",
