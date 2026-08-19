@@ -80,7 +80,6 @@ class Node:
         else:
             return f"feature[{self.feature_index}] == {self.category!r} ?"
 # Decision Tree Classifier
-
 class DecisionTreeClassifier:
 
     def __init__(self, criterion="gini", max_depth=5, min_samples_split=2,
@@ -176,7 +175,7 @@ class DecisionTreeClassifier:
                 if len(uniq) < 2:
                     continue
                 # candidate cutoffs = midpoints between consecutive unique values
-                cutoffs = (uniq[:-1] + uniq[1:]) / 2.0
+                cutoffs = (uniq[:-1] + uniq[1:]) / 2.0 # getting the mid point of the the adjecent values of feature
                 for cutoff in cutoffs:
                     left_mask = col_f <= cutoff
                     n_left, n_right = left_mask.sum(), n_samples - left_mask.sum()
