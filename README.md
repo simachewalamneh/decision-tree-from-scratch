@@ -16,13 +16,23 @@ the repo root.
 decision-tree-from-scratch/
 ├── README.md
 ├── requirements.txt
+├── app.py                       # interactive GUI (Streamlit) -- dataset/hyperparameter picker + visual tree
+├── tree_plot.py                 # shared matplotlib tree-diagram renderer, used by app.py
 ├── classification/
 │   ├── decision_tree.py         # from-scratch DecisionTreeClassifier
 │   ├── toy_example.py           # reproduces every classification number in this README
-│   ├── wine_demo.py             # real multiclass dataset (UCI Wine)
+│   ├── wine_unTune_demo.py      # real multiclass dataset (UCI Wine, numeric-only)
+│   ├── titanic_demo.py          # real dataset with mixed numeric + categorical features (binary)
+│   ├── penguins_demo.py         # real dataset: multiclass AND mixed numeric + categorical
+│   ├── hyperparameter_tuning.py # from-scratch k-fold CV + grid search (does not modify decision_tree.py)
+│   ├── wine_tuning_demo.py      # proper CV tuning vs. the old "eyeball the test set" approach
+│   ├── HYPERPARAMETER_SEARCH_COMPARISON.md  # small vs. large grid: same result, 7.8x slower
 │   └── outputs/
 │       ├── outputs_classification_toy.txt
-│       └── outputs_classification_wine.txt
+│       ├── outputs_classification_wine_untune.txt
+│       ├── outputs_classification_titanic.txt
+│       ├── outputs_classification_penguins.txt
+│       └── outputs_classification_wine_tuning.txt
 └── regression/
     ├── regression_tree.py       # from-scratch DecisionTreeRegressor
     ├── toy_regression_example.py # reproduces the book's own Table 9.6/9.7
@@ -37,7 +47,7 @@ pip install -r requirements.txt
 
 cd classification
 python toy_example.py    # classification concept walkthrough
-python wine_demo.py      # real multiclass classification
+python wine_unTune_demo.py      # real multiclass classification
 
 cd ../regression
 python toy_regression_example.py   # regression walkthrough (matches the book exactly)
@@ -89,7 +99,10 @@ never for the tree models themselves, which are 100% from scratch).
 ```bash
 cd classification
 python toy_example.py    # concept walkthrough — reproduces every number in section 2-7 above
-python wine_demo.py      # real multiclass dataset (UCI Wine), criteria + stopping-criteria comparisons
+python wine_unTune_demo.py      # real multiclass dataset (UCI Wine), criteria + stopping-criteria comparisons
+python titanic_demo.py   # real dataset with mixed numeric + categorical features (binary)
+python penguins_demo.py  # real dataset: multiclass AND mixed numeric + categorical
+python wine_tuning_demo.py    # proper hyperparameter tuning via cross-validation
 ```
 
 ### 5. Run the regression scripts
@@ -106,6 +119,28 @@ python diabetes_demo.py            # real-world dataset (Diabetes), stopping-cri
 deactivate
 ```
 Exits the virtual environment back to your normal shell.
+
+### 7. Or, skip the scripts and use the GUI instead
+
+```bash
+streamlit run app.py
+```
+
+Opens an interactive browser page where you can pick any dataset
+(toy/Wine/Titanic/Penguins for classification, toy/Diabetes for
+regression), tune `max_depth` / `min_samples_split` / `min_samples_leaf` /
+splitting criterion with sliders, and see three views of the result:
+
+- **Tree diagram** — an actual rendered tree (boxes and branches via
+  matplotlib), not just the ASCII `print_tree()` output
+- **Text tree** — the same ASCII output as the scripts, for direct
+  comparison
+- **Evaluation metrics** — accuracy/MSE, confusion matrix, precision/
+  recall/F1 (classification) or MSE/RMSE/MAE/R² (regression)
+
+`app.py` and `tree_plot.py` only *display* results from the exact same
+`decision_tree.py` / `regression_tree.py` used everywhere else in this
+repo — no algorithm changes.
 
 ---
 
@@ -428,13 +463,145 @@ why a real evaluation reports more than one number.
 
 ---
 
+## 8.5 A dataset with both feature types — Titanic
+
+Wine is 100% numerical features, so `wine_unTune_demo.py` never actually
+exercises the **categorical** branch of `_best_split` (the "is feature ==
+category?" question described in section 4). `titanic_demo.py` uses a
+real-world dataset that genuinely mixes both feature types, so both
+splitting branches show up in one tree:
+
+| Feature | Type |
+|---|---|
+| `pclass` (1st/2nd/3rd class) | categorical |
+| `sex` | categorical |
+| `embarked` (port: S/C/Q) | categorical |
+| `age`, `sibsp`, `parch`, `fare` | numerical |
+
+Target: `survived` (0/1), 712 passengers with complete records (rows with
+missing `age`/`embarked` dropped). Loaded via `seaborn.load_dataset` for
+data access only — same `decision_tree.py`, completely unchanged.
+
+The resulting tree (`max_depth=3, min_samples_leaf=5`) mixes both
+question types naturally:
+
+```
+[sex == 'female'?]
+├─ Yes: [pclass == '3'?] → [fare <= 20.800?] → ...
+└─ No:  [pclass == '1'?] → [age <= 53.000?] → ...
+```
+
+The root split is `sex == 'female'?` — the tree independently rediscovers
+the "women and children first" evacuation pattern directly from the data,
+which is a nice concrete example of a categorical split actually mattering
+(rather than being a code path that's implemented but never demonstrated).
+Test accuracy: **0.789** — lower than Wine's 0.943, which makes sense:
+survival on the Titanic is a genuinely noisier, harder problem than
+separating three wine cultivars by chemistry. Note that `survived` is
+binary (2 classes) — for a dataset that is both multiclass *and* mixed
+feature types, see the next section.
+
+## 8.6 Multiclass AND mixed feature types — Palmer Penguins
+
+Wine is multiclass but numeric-only. Titanic is mixed-feature but binary.
+`penguins_demo.py` closes that gap with a real dataset that is **both**:
+3-class target, genuine mix of categorical and numerical features.
+
+| Feature | Type |
+|---|---|
+| `island` (Torgersen/Biscoe/Dream) | categorical |
+| `sex` | categorical |
+| `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, `body_mass_g` | numerical |
+
+Target: `species` — **Adelie / Chinstrap / Gentoo** (3 classes). 333
+penguins with complete records. Loaded via `seaborn.load_dataset` for
+data access only — same `decision_tree.py`, completely unchanged.
+
+The final tree (`max_depth=3, min_samples_leaf=5`) mixes numeric cutoffs
+with a categorical split, and achieves **0.985 test accuracy**:
+
+```
+[flipper_length_mm <= 206.500?]
+├─ Yes: [bill_length_mm <= 43.350?] → Adelie / Chinstrap
+└─ No:  [island == 'Biscoe'?] → Gentoo / Chinstrap
+```
+
+The 3×3 confusion matrix on the test set is nearly diagonal (only 1 of 66
+samples misclassified), giving per-class precision/recall of 0.92–1.00
+across all three species — a clean example of the full evaluation
+machinery (section 8) applied to a genuinely multiclass, mixed-feature
+problem in one place.
+
+---
+
+## 8.7 Doing hyperparameter tuning properly
+
+Every earlier demo (`wine_unTune_demo.py`'s `max_depth`/`min_samples_leaf`
+sweeps) picked hyperparameters by training several trees and looking at
+whichever got the **highest test-set accuracy**. That's an informal
+sweep, not real tuning — and it has a real problem: using the test set
+to *choose* a hyperparameter, then reporting that same test set's score
+as "the" accuracy, is a form of leakage. The reported number is
+optimistically biased toward whichever setting happened to do best on
+that one specific 35-row test split.
+
+**Proper procedure**, implemented from scratch in
+`hyperparameter_tuning.py` (does not modify `decision_tree.py`):
+
+1. Split off a test set once; set it aside untouched.
+2. Split the training data into k folds (`stratified_k_fold_indices` —
+   keeps each class's proportion roughly equal per fold).
+3. For every candidate hyperparameter combination, train k times
+   (holding out a different fold each time), average the k validation
+   scores — this is `cross_validate()`.
+4. `grid_search()` tries every combination in a parameter grid and
+   picks whichever has the best **average cross-validation score** —
+   the test set is never touched for this decision.
+5. Retrain once on the full training set with the winning
+   hyperparameters, and evaluate **once** on the test set.
+
+`wine_tuning_demo.py` performs only the proper procedure (a-d):
+
+| Step | Result |
+|---|---|
+| (a) 5-fold CV grid search (36 combinations — criterion ∈ {gini, entropy}, max_depth ∈ 1-6, min_samples_leaf ∈ {1,3,5} — training data only) | best = `{criterion: entropy, max_depth: 4, min_samples_leaf: 1}`, CV acc=0.923 ± 0.041 |
+| (b) Final, single honest test evaluation | test_acc=**0.914** |
+| (c) Tree structure for the CV-selected config | printed via `print_tree()` |
+| (d) Full evaluation (confusion matrix, precision/recall/F1) | printed via `print_evaluation()` |
+
+For comparison, `wine_unTune_demo.py`'s earlier informal `max_depth` sweep
+picked `max_depth=3` by looking directly at test accuracy across 6
+values, reporting **0.943** — a number inflated by having used the test
+set 6 times to choose. `wine_tuning_demo.py`'s honest number is **0.914**,
+lower, because it was never used for selection. That gap is itself the
+concrete argument for why the CV procedure matters, even though the
+demo script itself no longer runs the biased comparison directly.
+
+One result worth flagging from the full evaluation (d): `class_2` has
+perfect precision (1.000) but only 0.625 recall — the CV-winning
+`min_samples_leaf=1` setting makes the tree very cautious about that
+class, missing 3 of 8 true `class_2` samples. A real trade-off the CV
+procedure surfaced, not something to gloss over.
+
+**Why this grid, and not a bigger one:** a 270-combination grid was also
+tested — adding `accuracy` as a third criterion and sweeping
+`min_samples_split` across 5 values. It took **7.8x longer** (61.0s vs
+7.8s) but converged on the exact same result: `accuracy` never
+outperformed `gini`/`entropy` here, `min_samples_split` was never the
+limiting stopping condition, and the final test accuracy was identical
+(0.914). See `HYPERPARAMETER_SEARCH_COMPARISON.md` for the full
+comparison — we use the smaller, faster grid going forward since it
+reaches the same answer.
+
+---
+
 ## 9. From here to the real task
 
 This toy example is deliberately tiny so every number can be checked by
 hand — run `toy_example.py` to reproduce every number above from scratch.
 The same `decision_tree.py` code, unchanged, is what's used on the real
 multiclass dataset (UCI Wine — 178 samples, 13 numerical features, 3
-classes) in `wine_demo.py`, which compares the three splitting criteria and
+classes) in `wine_unTune_demo.py`, which compares the three splitting criteria and
 shows overfitting as `max_depth` grows.
 
 Regression trees reuse this exact same structure: the only change is
@@ -613,17 +780,3 @@ The final tree (`max_depth=3, min_samples_leaf=10`) splits first on
 a well-established diabetes risk factor, giving the tree's structure a
 sensible real-world interpretation beyond just its accuracy numbers.
 Final test-set evaluation: **MSE=3192, RMSE=56.5, MAE=45.7, R²=0.402**.
-cat > REFERENCES.md << 'EOF'
-# References
-
-**Serrano, Luis.** *Grokking Machine Learning.* Manning Publications, 2021.
-Chapter 9 — "Splitting data by asking questions: Decision trees."
-
-Book link: https://books.google.com.et/books?id=jJiDzQEACAAJ&printsec=copyright&redir_esc=y#v=onepage&q&f=false
-
-This repository's decision tree concepts, formulas, and worked examples
-(splitting criteria, stopping criteria, the regression toy example) are
-based on this chapter. The Python implementation and the real-world
-dataset demos are original.
-EOF
-
