@@ -2,7 +2,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-
 def _impurity_of(node):
     """Works for both Node.impurity_value and RegressionNode.mse_value."""
     return getattr(node, "impurity_value", None) or getattr(node, "mse_value", 0.0)
