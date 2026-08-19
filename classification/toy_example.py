@@ -1,9 +1,3 @@
-"""
-Reproduces every number in README.md's worked example: a tiny 14-sample,
-3-feature "should I play outside?" dataset. Run this to verify the concept
-walkthrough matches the actual implementation in decision_tree.py.
-"""
-
 import numpy as np
 from decision_tree import (
     DecisionTreeClassifier, gini_impurity, entropy,
@@ -77,11 +71,6 @@ print(f"Sample {sample} -> predicted PlayOutside = {pred}")
 print("\n" + "=" * 60)
 print("Step 5: testing accuracy (leave-one-out cross-validation)")
 print("=" * 60)
-# With only 14 samples, a single train/test split would test on just 2-3
-# points -- not reliable. Leave-one-out (LOO) instead trains on 13 samples
-# and tests on the 1 left out, repeating for every sample, then averages.
-# This gives a genuine held-out (unseen-data) accuracy estimate even on a
-# dataset this small.
 correct = 0
 for i in range(len(y)):
     X_train = np.delete(X, i, axis=0)
