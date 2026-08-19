@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import numpy as np
 from collections import Counter
@@ -47,7 +46,6 @@ def impurity(labels, criterion):
     else:
         raise ValueError(f"Unknown criterion: {criterion}")
 
-
 def weighted_impurity(left_labels, right_labels, criterion):
     n_left, n_right = len(left_labels), len(right_labels)
     n_total = n_left + n_right
@@ -81,9 +79,6 @@ class Node:
             return f"feature[{self.feature_index}] <= {self.threshold:.3f} ?"
         else:
             return f"feature[{self.feature_index}] == {self.category!r} ?"
-
-
-
 # Decision Tree Classifier
 
 class DecisionTreeClassifier:
@@ -107,7 +102,7 @@ class DecisionTreeClassifier:
         y = np.asarray(y)
         self.n_features_ = X.shape[1]
 
-        if self.feature_types is None:
+        if self.feature_types is None: #
             self.feature_types = [
                 "numerical" if np.issubdtype(np.array(X[:, j], dtype=float).dtype, np.number)
                 else "categorical"
@@ -130,8 +125,7 @@ class DecisionTreeClassifier:
         node = Node(depth)
         node.n_samples = len(y)
         node.prediction = Counter(y).most_common(1)[0][0]
-        node.impurity_value = impurity(y, self.criterion)
-
+        node.impurity_value = impurity(y, self.criterion)  
         # ---- Stopping conditions (checked BEFORE searching for a split) ---
         # 1. Node is already pure -> nothing to gain from splitting.
         if node.impurity_value == 0:
@@ -166,8 +160,8 @@ class DecisionTreeClassifier:
         return node
 
     def _best_split(self, X, y):  # Searches for the best feature/threshold
-        parent_impurity = impurity(y, self.criterion)
-        best_gain = -np.inf   # what it returns?
+        parent_impurity = impurity(y, self.criterion)   
+        best_gain = -np.inf   # wNegative infinity
         best = None  # (feat_idx, feat_type, split_value, left_mask, gain)
 
         n_samples = len(y)
@@ -189,7 +183,7 @@ class DecisionTreeClassifier:
                     if n_left < self.min_samples_leaf or n_right < self.min_samples_leaf:
                         continue
                     w_imp = weighted_impurity(y[left_mask], y[~left_mask], self.criterion)
-                    gain = parent_impurity - w_imp # what this tells ?
+                    gain = parent_impurity - w_imp # if I use this exact cutoff, how much cleaner do the resulting two groups get, compared to not splitting at all.
                     if gain > best_gain:
                         best_gain = gain
                         best = (feat_idx, "numerical", cutoff, left_mask.copy(), gain)
