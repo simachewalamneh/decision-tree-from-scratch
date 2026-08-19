@@ -1,55 +1,16 @@
-"""
-Decision Tree Regressor — implemented from scratch, following the
-"Decision trees for regression" section of Chapter 9 in Luis Serrano's
-"Grokking Machine Learning".
-
-As the book states: "the algorithm used for training a regression decision
-tree is very similar to the one used for training a classification decision
-tree. The only difference is that for classification trees, we used
-accuracy, Gini index, or entropy, and for regression trees, we use the mean
-square error (MSE)." Leaf predictions become the AVERAGE label instead of
-the majority label.
-
-No scikit-learn (or any other library) is used for the tree logic itself.
-Only numpy is used for basic array math.
-
-Supports:
-  - Continuous (numerical) targets
-  - Numerical features  -> split by "is feature <= cutoff?" (all midpoints tried,
-                            exactly as in the book's age-cutoff example)
-  - Categorical features -> split by "is feature == category?" (same as classifier)
-  - Splitting criterion: mean squared error (MSE)
-  - The same four stopping criteria as the classifier:
-        1. max_depth
-        2. min_samples_split
-        3. min_samples_leaf
-        4. min_impurity_decrease (here: minimum MSE decrease)
-"""
-
 from __future__ import annotations
 import numpy as np
-
-
-# --------------------------------------------------------------------------- #
 # Regression impurity: mean squared error around the average prediction
-# --------------------------------------------------------------------------- #
 
 def mse_of_set(labels):
-    """
-    MSE of a set of continuous labels when predicting their own average
-    (i.e. how spread out the labels are around their mean). 0 = all labels
-    identical. This plays the same role Gini/entropy played for classification.
-    """
+  
     labels = np.asarray(labels, dtype=float)
     if len(labels) == 0:
         return 0.0
     avg = labels.mean()
     return float(np.mean((labels - avg) ** 2))
 
-
 def weighted_mse(left_labels, right_labels):
-    """Weighted average MSE of a split, weighted by branch size —
-    same weighting rule as the classifier (Figure 9.14)."""
     n_left, n_right = len(left_labels), len(right_labels)
     n_total = n_left + n_right
     if n_total == 0:
@@ -58,9 +19,7 @@ def weighted_mse(left_labels, right_labels):
            (n_right / n_total) * mse_of_set(right_labels)
 
 
-# --------------------------------------------------------------------------- #
 # Tree node (identical structure to the classifier's Node)
-# --------------------------------------------------------------------------- #
 
 class RegressionNode:
     def __init__(self, depth):
@@ -77,17 +36,10 @@ class RegressionNode:
         self.mse_value = None
 
 
-# --------------------------------------------------------------------------- #
 # Decision Tree Regressor
 # --------------------------------------------------------------------------- #
 
 class DecisionTreeRegressor:
-    """
-    Same stopping-criteria parameters as DecisionTreeClassifier, but the
-    splitting metric is fixed to MSE (the book's regression criterion) and
-    leaf predictions are the average label instead of the majority label.
-    """
-
     def __init__(self, max_depth=5, min_samples_split=2, min_samples_leaf=1,
                  min_impurity_decrease=0.0, feature_types=None):
         self.max_depth = max_depth
@@ -158,13 +110,7 @@ class DecisionTreeRegressor:
         return node
 
     def _best_split(self, X, y):
-        """
-        Same search as the classifier's _best_split, except the quality
-        metric is MSE decrease instead of impurity decrease. For numerical
-        features, every midpoint between consecutive sorted unique values
-        is tried as a cutoff (exactly the book's age-cutoff procedure in
-        Table 9.7).
-        """
+     
         parent_mse = mse_of_set(y)
         best_gain = -np.inf
         best = None
@@ -223,15 +169,7 @@ class DecisionTreeRegressor:
     # ---- evaluation metrics (the regression analogue of evaluate()) ------ #
 
     def evaluate(self, X, y):
-        """
-        Regression evaluation metrics -- the regression counterparts of
-        the classifier's accuracy/precision/recall/F1:
-          MSE  - mean squared error (average squared distance from truth)
-          RMSE - root MSE (same units as the target, easier to interpret)
-          MAE  - mean absolute error (less sensitive to outliers than MSE)
-          R^2  - fraction of variance explained (1.0 = perfect, 0.0 = no
-                 better than always predicting the mean, can go negative)
-        """
+   
         y_true = np.asarray(y, dtype=float)
         y_pred = self.predict(X)
         errors = y_true - y_pred
