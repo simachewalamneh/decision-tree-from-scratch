@@ -70,8 +70,10 @@ def main():
               f"train_acc={train_acc:.3f}  test_acc={test_acc:.3f}")
 
     # 4. Print the actual tree for the best-looking configuration
-
-l_clf = DecisionTreeClassifier(criterion="gini", max_depth=3,
+    print("\n" + "=" * 70)
+    print("Final tree (criterion=gini, max_depth=3, min_samples_leaf=3)")
+    print("=" * 70)
+    final_clf = DecisionTreeClassifier(criterion="gini", max_depth=3,
                                         min_samples_split=6, min_samples_leaf=3)
     final_clf.fit(X_train, y_train)
     final_clf.print_tree(feature_names=feature_names)
