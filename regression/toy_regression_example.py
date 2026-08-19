@@ -1,10 +1,3 @@
-"""
-Reproduces the book's own regression walkthrough exactly: Table 9.6/9.7
-from Chapter 9 -- 8 users, their age, and how many days/week they engage
-with an app. This lets you verify the from-scratch code against numbers
-that are already in the book itself.
-"""
-
 import numpy as np
 from regression_tree import DecisionTreeRegressor, mse_of_set, weighted_mse
 
@@ -51,9 +44,6 @@ for age in [18, 42, 68]:
 print("\n" + "=" * 60)
 print("Step 5: testing accuracy (leave-one-out cross-validation)")
 print("=" * 60)
-# Same reasoning as the classification toy example: only 8 samples, so a
-# single train/test split isn't reliable. LOO trains on 7 and tests on the
-# 1 left out, repeated for every point.
 sq_errors = []
 for i in range(len(y)):
     X_train = np.delete(X, i, axis=0)
