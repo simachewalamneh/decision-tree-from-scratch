@@ -1,4 +1,4 @@
-# Decision Trees (DT) — Concept Presentation Note
+# Decision Trees (DT) 
 
 > **Capsule summary:** A Decision Tree is a supervised learning model that predicts a target by asking a sequence of yes/no questions about the input features, recursively splitting the data into purer and purer subsets until it can make a confident prediction at each leaf. The whole algorithm is really just one idea repeated: *"what question splits this data best right now?"*
 
